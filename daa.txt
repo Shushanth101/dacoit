@@ -64,735 +64,428 @@ class GfG {
         System.out.println(result.get(0) + " " + result.get(1));
     }
 }
-Strassens Matrix Multiplication Algorithm
 
-public class Strassens {
-public static void main( String[] args) {
-      int[][] x = {{12, 34}, {22, 10}};
-      int[][] y = {{3, 4}, {2, 1}};
-      int z[][] = new int[2][2];
-      int m1, m2, m3, m4 , m5, m6, m7;
-      System.out.print("The first matrix is: ");
-      for(int i = 0; i<2; i++) {
-         System.out.println();
-         for(int j = 0; j<2; j++) {
-            System.out.print(x[i][j] + "\t");
-         }
-      }
-      System.out.print("\nThe second matrix is: ");
-      for(int i = 0; i<2; i++) {
-         System.out.println();
-         for(int j = 0; j<2; j++) {
-            System.out.print(y[i][j] + "\t");
-         }
-      }
-      m1 = (x[0][0] + x[1][1]) * (y[0][0] + y[1][1]);
-      m2 = (x[1][0] + x[1][1]) * y[0][0];
-      m3 = x[0][0] * (y[0][1] - y[1][1]);
-      m4 = x[1][1] * (y[1][0] - y[0][0]);
-      m5 = (x[0][0] + x[0][1]) * y[1][1];
-      m6 = (x[1][0] - x[0][0]) * (y[0][0]+y[0][1]);
-      m7 = (x[0][1] - x[1][1]) * (y[1][0]+y[1][1]);
-      z[0][0] = m1 + m4- m5 + m7;
-      z[0][1] = m3 + m5;
-      z[1][0] = m2 + m4;
-      z[1][1] = m1 - m2 + m3 + m6;
-      System.out.print("\nProduct achieved using Strassen's algorithm: ");
-      for(int i = 0; i<2; i++) {
-         System.out.println();//new line
-         for(int j = 0; j<2; j++) {
-            System.out.print(z[i][j] + "\t");
-         }
-      }
-   }
-}
-
-Job Sequencing with Deadlines using Greedy Method
-import java.util.*;
-
-public class Job {
-
-    // Each job has an id, deadline, and profit
-    char id;
-    int deadline, profit;
-
-    // Default constructor
-    public Job() {}
-
-    // Parameterized constructor
-    public Job(char id, int deadline, int profit) {
-        this.id = id;
-        this.deadline = deadline;
-        this.profit = profit;
+public class MergeSort {
+    static void merge(int[] arr, int l, int m, int r) {
+        int n1 = m - l + 1, n2 = r - m;
+        int[] L = new int[n1], R = new int[n2];
+        for (int i = 0; i < n1; i++) L[i] = arr[l + i];
+        for (int j = 0; j < n2; j++) R[j] = arr[m + 1 + j];
+        int i = 0, j = 0, k = l;
+        while (i < n1 && j < n2)
+            arr[k++] = (L[i] <= R[j]) ? L[i++] : R[j++];
+        while (i < n1) arr[k++] = L[i++];
+        while (j < n2) arr[k++] = R[j++];
     }
 
-    // Function to schedule jobs and calculate maximum profit
-    void printJobScheduling(ArrayList<Job> arr, int t) {
+    static void mergeSort(int[] arr, int l, int r) {
+        if (l < r) {
+            int m = (l + r) / 2;
+            mergeSort(arr, l, m);
+            mergeSort(arr, m + 1, r);
+            merge(arr, l, m, r);
+        }
+    }
 
-        // Number of jobs
-        int n = arr.size();
+    public static void main(String[] args) {
+        int[] arr = {38, 27, 43, 3, 9, 82, 10};
+        mergeSort(arr, 0, arr.length - 1);
+        System.out.print("Sorted: ");
+        for (int x : arr) System.out.print(x + " ");
+    }
+}
 
-        // Sort jobs in decreasing order of profit
-        Collections.sort(arr, (a, b) -> b.profit - a.profit);
+public class QuickSort {
+    static void swap(int[] arr, int i, int j) {
+        int t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    }
 
-        // To track free time slots
-        boolean[] slot = new boolean[t];
+    static int partition(int[] arr, int low, int high) {
+        int pivot = arr[high], i = low - 1;
+        for (int j = low; j < high; j++)
+            if (arr[j] <= pivot) swap(arr, ++i, j);
+        swap(arr, i + 1, high);
+        return i + 1;
+    }
 
-        // To store job sequence
-        char[] result = new char[t];
+    static void quickSort(int[] arr, int low, int high) {
+        if (low < high) {
+            int pi = partition(arr, low, high);
+            quickSort(arr, low, pi - 1);
+            quickSort(arr, pi + 1, high);
+        }
+    }
 
-        // Variable to store total profit
-        int totalProfit = 0;
+    public static void main(String[] args) {
+        int[] arr = {10, 7, 8, 9, 1, 5};
+        quickSort(arr, 0, arr.length - 1);
+        System.out.print("Sorted: ");
+        for (int x : arr) System.out.print(x + " ");
+    }
+}
 
-        // Schedule jobs
+public class Knapsack {
+    static int knapsack(int W, int[] wt, int[] val, int n) {
+        int[][] dp = new int[n + 1][W + 1];
+        for (int i = 1; i <= n; i++) {
+            for (int w = 0; w <= W; w++) {
+                dp[i][w] = dp[i-1][w];
+                if (wt[i-1] <= w)
+                    dp[i][w] = Math.max(dp[i][w],
+                                val[i-1] + dp[i-1][w - wt[i-1]]);
+            }
+        }
+        return dp[n][W];
+    }
+
+    public static void main(String[] args) {
+        int[] val = {60, 100, 120};
+        int[] wt  = {10,  20,  30};
+        int W = 50, n = 3;
+        System.out.println("Max value = " + knapsack(W, wt, val, n));
+    }
+}
+
+import java.util.Arrays;
+
+public class JobSequencing {
+    static void jobSequencing(int[] id, int[] deadline, int[] profit, int n) {
+        Integer[] idx = new Integer[n];
+        for (int i = 0; i < n; i++) idx[i] = i;
+        Arrays.sort(idx, (a, b) -> profit[b] - profit[a]);
+
+        int maxD = 0;
+        for (int d : deadline) maxD = Math.max(maxD, d);
+
+        int[] slot = new int[maxD + 1];
+        Arrays.fill(slot, -1);
+
+        int totalProfit = 0, count = 0;
+        System.out.print("Selected jobs: ");
         for (int i = 0; i < n; i++) {
-
-            // Find a free slot before job's deadline
-            for (int j = Math.min(t - 1, arr.get(i).deadline - 1); j >= 0; j--) {
-
-                if (!slot[j]) {
-                    slot[j] = true;
-                    result[j] = arr.get(i).id;
-                    totalProfit += arr.get(i).profit;
+            int j = idx[i];
+            for (int d = deadline[j]; d > 0; d--) {
+                if (slot[d] == -1) {
+                    slot[d] = id[j];
+                    totalProfit += profit[j];
+                    count++;
+                    System.out.print("J" + id[j] + " ");
                     break;
                 }
             }
         }
-
-        // Print job sequence
-        System.out.print("Job sequence: ");
-        for (int i = 0; i < t; i++) {
-            if (slot[i])
-                System.out.print(result[i] + " ");
-        }
-
-        // Print maximum profit
-        System.out.println("\nMaximum Profit = " + totalProfit);
-    }
-
-    // Driver method
-    public static void main(String[] args) {
-
-        ArrayList<Job> arr = new ArrayList<>();
-
-        arr.add(new Job('a', 2, 100));
-        arr.add(new Job('b', 2, 20));
-        arr.add(new Job('c', 1, 40));
-        arr.add(new Job('d', 3, 35));
-        arr.add(new Job('e', 1, 25));
-
-        System.out.println("Following is maximum profit sequence of Jobs:");
-
-        Job job = new Job();
-        job.printJobScheduling(arr, 3);
-    }
-}
-Knapsack Problem using Greedy Method
-import java.util.Arrays;
-import java.util.Comparator;(define our own way of comparing two objects)
-
-class Item {
-    double weight, value, ratio;
-
-    Item(double weight, double value) {
-        this.weight = weight;
-        this.value = value;
-        this.ratio = value / weight;
-    }
-}
-
-   public class Main {
-
-    public static double getMaxValue(Item[] items, double capacity) {
-
-        Arrays.sort(items, new Comparator<Item>() {
-            @Override
-            public int compare(Item o1, Item o2)
-{
-                return Double.compare(o2.ratio, o1.ratio);
- 
-            }
-        });
-
-        double totalValue = 0;(Stores the final maximum value in the knapsack)
-
-        for (Item item : items) {
-            if (capacity >= item.weight) {
-                capacity -= item.weight;
-                totalValue += item.value;
-            } else {
-                totalValue += item.value * (capacity / item.weight);
-                break;
-            }
-        }
-        return totalValue;
+        System.out.println("\nTotal profit = " + totalProfit + ", Jobs = " + count);
     }
 
     public static void main(String[] args) {
-
-        Item[] items = {
-            new Item(10, 60),
-            new Item(20, 100),
-            new Item(30, 120)
-        };
-
-        double capacity = 50;
-
-        double maxValue = getMaxValue(items, capacity);
-        System.out.println("Maximum value in knapsack: " + maxValue);
+        int[] id       = {1,  2,  3,  4,  5};
+        int[] deadline = {2,  1,  2,  1,  3};
+        int[] profit   = {100,19, 27, 25, 15};
+        jobSequencing(id, deadline, profit, 5);
     }
 }
 
+public class Dijkstra {
+    static final int V = 5, INF = Integer.MAX_VALUE;
 
-Dijkstra’s Algorithm
-import java.util.*;
-
-public class DijkstraGraph {
-
-    static final int V = 5; // Number of vertices
-
-    // Function to find the vertex with minimum distance
-    int minDistance(int dist[], boolean visited[]) {
-        int min = Integer.MAX_VALUE, minIndex = -1;
-
-        for (int v = 0; v < V; v++) {
-            if (!visited[v] && dist[v] < min) {
-                min = dist[v];
-                minIndex = v;
-            }
-        }
-        return minIndex;
+    static int minDist(int[] dist, boolean[] visited) {
+        int min = INF, idx = -1;
+        for (int v = 0; v < V; v++)
+            if (!visited[v] && dist[v] < min) { min = dist[v]; idx = v; }
+        return idx;
     }
 
-    // Dijkstra's Algorithm
-    void dijkstra(int graph[][], int src) {
-        int dist[] = new int[V];
-        boolean visited[] = new boolean[V];
-
-        Arrays.fill(dist, Integer.MAX_VALUE);
-        dist[src] = 0;
-
-        for (int count = 0; count < V - 1; count++) {
-            int u = minDistance(dist, visited);
-            visited[u] = true;
-
-            for (int v = 0; v < V; v++) {
-                if (!visited[v] && graph[u][v] != 0 &&
-                        dist[u] != Integer.MAX_VALUE &&
-                        dist[u] + graph[u][v] < dist[v]) {
-                    dist[v] = dist[u] + graph[u][v];
-                }
-            }
-        }
-
-        printSolution(dist);
-    }
-
-    // Print the result
-    void printSolution(int dist[]) {
-        System.out.println("Vertex \t Distance from Source");
-        for (int i = 0; i < V; i++) {
-            System.out.println((i + 1) + " \t\t " + dist[i]);
-        }
-    }
-
-    public static void main(String[] args) {
-
-        DijkstraGraph obj = new DijkstraGraph();
-
-        // Adjacency matrix representation
-        int graph[][] = {
-            {0, 4, 2, 0, 8}, // Node 1
-            {0, 0, 0, 4, 5}, // Node 2
-            {0, 0, 0, 1, 0}, // Node 3
-            {0, 0, 0, 0, 3}, // Node 4
-            {0, 0, 0, 0, 0}  // Node 5
-        };
-
-        obj.dijkstra(graph, 0); // Source = Node 1 (index 0)
-    }
-}
- 
-
-
-N-Queen’s Problem
-public class Main {
-   static final int BOARD_SIZE = 5;
-   static void displayChess(int chBoard[][]) {
-      for (int row = 0; row < BOARD_SIZE; row++) {
-         for (int col = 0; col < BOARD_SIZE; col++)
-            System.out.print(chBoard[row][col] + " ");
-         System.out.println();
-      }
-   }
-   static boolean isQueenPlaceValid(int chBoard[][], int crntRow, int crntCol) {
-      // checking if queen is in the left or not
-      for (int i = 0; i < crntCol; i++)
-         if (chBoard[crntRow][i] == 1)
-            return false;
-      for (int i = crntRow, j = crntCol; i >= 0 && j >= 0; i--, j--)
-         //checking if queen is in the left upper diagonal or not
-         if (chBoard[i][j] == 1)
-            return false;
-      for (int i = crntRow, j = crntCol; j >= 0 && i < BOARD_SIZE; i++, j--)
-         //checking if queen is in the left lower diagonal or not
-         if (chBoard[i][j] == 1)
-            return false;
-      return true;
-   }
-   static boolean solveProblem(int chBoard[][], int crntCol) {
-      //when N queens are placed successfully
-      if (crntCol >= BOARD_SIZE)
-         return true;
-      // checking placement of queen is possible or not
-      for (int i = 0; i < BOARD_SIZE; i++) {
-         if (isQueenPlaceValid(chBoard, i, crntCol)) {
-            //if validate, place the queen at place (i, col)
-            chBoard[i][crntCol] = 1;
-            //Go for the other columns recursively
-            if (solveProblem(chBoard, crntCol + 1))
-               return true;
-            //When no place is vacant remove that queen
-               chBoard[i][crntCol] = 0;
-         }
-      }
-      return false;
-   }
-   static boolean displaySolution() {
-      int chBoard[][] = new int[BOARD_SIZE][BOARD_SIZE];
-      for(int i = 0; i < BOARD_SIZE; i++)
-         for(int j = 0; j < BOARD_SIZE; j++)
-            //set all elements to 0
-            chBoard[i][j] = 0;
-      //starting from 0th column
-      if (!solveProblem(chBoard, 0)) {
-         System.out.println("Solution does not exist");
-         return false;
-      }
-      displayChess(chBoard);
-      return true;
-   }
-   public static void main(String[ ] args) {
-      displaySolution();
-   }
-}
-
-Sum of Subsets Problem 
-
-public class Main {
-   static void displaySubset(int subSet[], int size) {
-      for(int i = 0; i < size; i++) {
-         System.out.print(subSet[i] + "  ");
-      }
-      System.out.println();
-   }
-   static void subsetSum(int set[], int subSet[], int n, int subSize, int total, int nodeCount ,int sum) {
-      if( total == sum) {
-         //print the subset 
-         displaySubset(subSet, subSize);  
-         //for other subsets
-         if (subSize != 0)
-            subsetSum(set,subSet,n,subSize-1,total-set[nodeCount],nodeCount+1,sum);     
-         return;
-      } else {
-         //find node along breadth 
-         for( int i = nodeCount; i < n; i++ ) {     
-            subSet[subSize] = set[i];
-            //do for next node in depth
-            subsetSum(set,subSet,n,subSize+1,total+set[i],i+1,sum);    
-         }
-      }
-   }
-   static void findSubset(int set[ ], int size, int sum) {
-      //create subset array to pass parameter of subsetSum
-      int subSet[ ] = new int[size];     
-      subsetSum(set, subSet, size, 0, 0, 0, sum);
-   }
-   public static void main(String[ ] args) {
-      int weights[ ] = {1, 9, 7, 5, 18, 12, 20, 15};
-      int size = 7;
-      findSubset(weights, size, 35);
-   }
-}
-bellman ford algorithm
-
-import java.util.Arrays;
-
-class GfG {
-    static int[] bellmanFord(int V, int[][] edges, int src) {
-        
-        // Initially distance from source to all other vertices 
-        // is not known(Infinite).
+    static void dijkstra(int[][] graph, int src) {
         int[] dist = new int[V];
-        Arrays.fill(dist, (int)1e8);
+        boolean[] visited = new boolean[V];
+        for (int i = 0; i < V; i++) dist[i] = INF;
         dist[src] = 0;
 
-        // Relaxation of all the edges V times, not (V - 1) as we  
-        // need one additional relaxation to detect negative cycle
-        for (int i = 0; i < V; i++) {
-            for (int[] edge : edges) {
-                int u = edge[0];
-                int v = edge[1];
-                int wt = edge[2];
-                if (dist[u] != 1e8 && dist[u] + wt < dist[v]) {
-                    
-                    // If this is the Vth relaxation, then there is
-                    // a negative cycle
-                    if (i == V - 1)
-                        return new int[]{-1};
-                    
-                    // Update shortest distance to node v
-                    dist[v] = dist[u] + wt;
-                }
-            }
+        for (int c = 0; c < V - 1; c++) {
+            int u = minDist(dist, visited);
+            visited[u] = true;
+            for (int v = 0; v < V; v++)
+                if (!visited[v] && graph[u][v] != 0
+                    && dist[u] != INF
+                    && dist[u] + graph[u][v] < dist[v])
+                    dist[v] = dist[u] + graph[u][v];
         }
-        return dist;
+        System.out.println("Vertex  Distance from source");
+        for (int i = 0; i < V; i++)
+            System.out.println("  " + i + "  ->  " + dist[i]);
     }
 
     public static void main(String[] args) {
-        
-    // Number of vertices in the graph
-    int V = 5;
-
-    // Edge list representation: {source, destination, weight}
-    int[][] edges = new int[][] {
-        {1, 3, 2},    
-        {4, 3, -1},   
-        {2, 4, 1},    
-        {1, 2, 1},    
-        {0, 1, 5}     
-    };
-
-    // Source vertex for Bellman-Ford algorithm
-    int src = 0;
-
-    // Run Bellman-Ford algorithm from the source vertex
-    int[] ans = bellmanFord(V, edges, src);
-
-    // Print shortest distances from the source to all vertices
-    for (int dist : ans) 
-        System.out.print(dist + " ");
+        int[][] g = {{0,10,0,0,5},{0,0,1,0,2},{0,0,0,4,0},
+                     {7,0,6,0,0},{0,3,9,2,0}};
+        dijkstra(g, 0);
+    }
 }
+
+public class BellmanFord {
+    static final int INF = Integer.MAX_VALUE;
+
+    static void bellmanFord(int[][] edges, int V, int E, int src) {
+        int[] dist = new int[V];
+        for (int i = 0; i < V; i++) dist[i] = INF;
+        dist[src] = 0;
+
+        for (int i = 1; i < V; i++)
+            for (int j = 0; j < E; j++) {
+                int u = edges[j][0], v = edges[j][1], w = edges[j][2];
+                if (dist[u] != INF && dist[u] + w < dist[v])
+                    dist[v] = dist[u] + w;
+            }
+
+        for (int j = 0; j < E; j++) {
+            int u = edges[j][0], v = edges[j][1], w = edges[j][2];
+            if (dist[u] != INF && dist[u] + w < dist[v]) {
+                System.out.println("Negative cycle detected");
+                return;
+            }
+        }
+        System.out.println("Vertex  Distance");
+        for (int i = 0; i < V; i++) System.out.println("  " + i + "  ->  " + dist[i]);
+    }
+
+    public static void main(String[] args) {
+        int[][] edges = {{0,1,-1},{0,2,4},{1,2,3},{1,3,2},
+                         {1,4,2},{3,2,5},{3,1,1},{4,3,-3}};
+        bellmanFord(edges, 5, 8, 0);
+    }
 }
-All pairs shortest path using dynamic programming
 
-public class Main {
+public class SumOfSubsets {
+    static int[] w = {1, 2, 3, 4, 5};
+    static int M = 6, n = 5;
+    static int[] x = new int[n];
 
-    static final int INF = 999;
+    static void sumOfSubsets(int s, int k, int r) {
+        x[k] = 1;
+        if (s + w[k] == M) {
+            System.out.print("{ ");
+            for (int i = 0; i <= k; i++) if (x[i] == 1) System.out.print(w[i] + " ");
+            System.out.println("}");
+        } else if (k + 1 < n && s + w[k] + w[k+1] <= M) {
+            sumOfSubsets(s + w[k], k + 1, r - w[k]);
+        }
+        if (k + 1 < n && (s + r - w[k] >= M) && (s + w[k+1] <= M)) {
+            x[k] = 0;
+            sumOfSubsets(s, k + 1, r - w[k]);
+        }
+    }
 
-    void floydWarshall(int graph[ ][ ], int V) {
+    public static void main(String[] args) {
+        int total = 0;
+        for (int v : w) total += v;
+        System.out.println("Subsets with sum " + M + ":");
+        sumOfSubsets(0, 0, total);
+    }
+}
 
-        int dist[ ][ ] = new int[V][V];
+public class FloydWarshall {
+    static final int INF = 99999, V = 4;
 
-        // Copy graph into dist matrix
+    static void floydWarshall(int[][] graph) {
+        int[][] dist = new int[V][V];
         for (int i = 0; i < V; i++)
             for (int j = 0; j < V; j++)
                 dist[i][j] = graph[i][j];
 
-        // Floyd WarshalAlgorithm
-        for (int k = 0; k < V; k++) {
-            for (int i = 0; i < V; i++) {
-                for (int j = 0; j < V; j++) {
-
+        for (int k = 0; k < V; k++)
+            for (int i = 0; i < V; i++)
+                for (int j = 0; j < V; j++)
                     if (dist[i][k] + dist[k][j] < dist[i][j])
                         dist[i][j] = dist[i][k] + dist[k][j];
 
-                }
-            }
-        }
-
-        // Print result
-        System.out.println("Shortest distance matrix:");
-
+        System.out.println("Shortest distances:");
         for (int i = 0; i < V; i++) {
-            for (int j = 0; j < V; j++) {
-
-                if (dist[i][j] == INF)
-                    System.out.print("INF ");
-                else
-                    System.out.print(dist[i][j] + " ");
-            }
+            for (int j = 0; j < V; j++)
+                System.out.printf("%6s", dist[i][j] == INF ? "INF" : dist[i][j]);
             System.out.println();
         }
     }
 
-    public static void main( String[ ] args) {
-
-        int V = 3;
-
-        int graph[ ][ ] = {
-                {0, 4, 11},
-                {6, 0, 2},
-                {3, INF, 0}
-        };
-
-        Main obj = new Main ();
-        obj.floydWarshall(graph, V);
+    public static void main(String[] args) {
+        int[][] g = {{0,3,INF,5},{2,0,INF,4},
+                     {INF,1,0,INF},{INF,INF,2,0}};
+        floydWarshall(g);
     }
 }
 
-Optimal Binary search tree
-import java.util.*;
+Strassens Matrix Multiplication Algorithm
+
+public class Strassen {
+    static int[][] strassen(int[][] A, int[][] B) {
+        int m1 = (A[0][0]+A[1][1]) * (B[0][0]+B[1][1]);
+        int m2 = (A[1][0]+A[1][1]) * B[0][0];
+        int m3 =  A[0][0] * (B[0][1]-B[1][1]);
+        int m4 =  A[1][1] * (B[1][0]-B[0][0]);
+        int m5 = (A[0][0]+A[0][1]) * B[1][1];
+        int m6 = (A[1][0]-A[0][0]) * (B[0][0]+B[0][1]);
+        int m7 = (A[0][1]-A[1][1]) * (B[1][0]+B[1][1]);
+
+        int[][] C = new int[2][2];
+        C[0][0] = m1+m4-m5+m7;
+        C[0][1] = m3+m5;
+        C[1][0] = m2+m4;
+        C[1][1] = m1-m2+m3+m6;
+        return C;
+    }
+
+    public static void main(String[] args) {
+        int[][] A = {{1,2},{3,4}};
+        int[][] B = {{5,6},{7,8}};
+        int[][] C = strassen(A, B);
+        System.out.println("Result:");
+        for (int[] row : C) {
+            for (int v : row) System.out.print(v + " ");
+            System.out.println();
+        }
+    }
+}
+
+public class MultistageGraph {
+    static final int N = 8, INF = Integer.MAX_VALUE;
+    static int[][] graph = {
+        {0,1,2,5,INF,INF,INF,INF},
+        {INF,0,INF,INF,4,11,INF,INF},
+        {INF,INF,0,INF,9,5,16,INF},
+        {INF,INF,INF,0,INF,INF,2,INF},
+        {INF,INF,INF,INF,0,INF,INF,18},
+        {INF,INF,INF,INF,INF,0,INF,13},
+        {INF,INF,INF,INF,INF,INF,0,2},
+        {INF,INF,INF,INF,INF,INF,INF,0}
+    };
+
+    static void multistage() {
+        int[] cost = new int[N], d = new int[N];
+        cost[N-1] = 0;
+        for (int i = N-2; i >= 0; i--) {
+            cost[i] = INF; d[i] = N-1;
+            for (int j = i+1; j < N; j++) {
+                if (graph[i][j] != INF && cost[j] != INF) {
+                    int c = graph[i][j] + cost[j];
+                    if (c < cost[i]) { cost[i] = c; d[i] = j; }
+                }
+            }
+        }
+        System.out.println("Shortest path cost = " + cost[0]);
+        System.out.print("Path: ");
+        int v = 0;
+        while (v != N-1) { System.out.print(v + " -> "); v = d[v]; }
+        System.out.println(N-1);
+    }
+
+    public static void main(String[] args) { multistage(); }
+}
+
 
 public class OptimalBST {
+    static int n = 4;
+    static float[] p = {0, 0.1f, 0.2f, 0.4f, 0.3f}; // 1-indexed
 
-    static int optimalBST(int keys[  ], int freq[ ], int n) {
-        int cost[ ][ ] = new int[n][n];
+    static void optimalBST() {
+        float[][] cost = new float[n+2][n+1];
+        float[][] w    = new float[n+2][n+1];
+        int[][]   root = new int[n+1][n+1];
 
-        // Cost for single key
-        for (int i = 0; i < n; i++)
-            cost[i][i] = freq[i];
+        for (int i = 1; i <= n+1; i++) { cost[i][i-1] = 0; w[i][i-1] = 0; }
+        for (int i = 1; i <= n; i++) {
+            cost[i][i] = p[i]; w[i][i] = p[i]; root[i][i] = i;
+        }
 
-        // L is chain length
-        for (int L = 2; L <= n; L++) {
-            for (int i = 0; i <= n - L; i++) {
-                int j = i + L - 1;
-                cost[i][j] = Integer.MAX_VALUE;
-
-                int sum = sum(freq, i, j);
-
+        for (int len = 2; len <= n; len++) {
+            for (int i = 1; i <= n-len+1; i++) {
+                int j = i + len - 1;
+                w[i][j] = w[i][j-1] + p[j];
+                cost[i][j] = Float.MAX_VALUE;
                 for (int r = i; r <= j; r++) {
-                    int c = ((r > i) ? cost[i][r - 1] : 0)
-                          + ((r < j) ? cost[r + 1][j] : 0)
-                          + sum;
-
-                    if (c < cost[i][j])
-                        cost[i][j] = c;
+                    float c = cost[i][r-1] + cost[r+1][j] + w[i][j];
+                    if (c < cost[i][j]) { cost[i][j] = c; root[i][j] = r; }
                 }
             }
         }
-
-        return cost[0][n - 1];
+        System.out.printf("Optimal BST cost = %.2f%n", cost[1][n]);
+        System.out.println("Root = key " + root[1][n]);
     }
 
-    static int sum(int freq[ ], int i, int j) {
-        int s = 0;
-        for (int k = i; k <= j; k++)
-            s += freq[k];
-        return s;
-    }
-
-    public static void main(String[ ] args) {
-        int keys[ ] = {10, 12, 20};
-        int freq[ ] = {34, 8, 50};
-        int n = keys.length;
-
-        System.out.println("Cost of Optimal BST = " + optimalBST(keys, freq, n));
-    }
+    public static void main(String[] args) { optimalBST(); }
 }
-Java program to find shortest distance in a multistage graph.. import java.io.*;
-import java.util.*;
 
-class GFG {
+public class TSP {
+    static final int N = 4, INF = Integer.MAX_VALUE;
+    static int[] finalPath = new int[N+1];
+    static int finalRes = INF;
 
-    static int N = 8;
-    static int INF = Integer.MAX_VALUE;
-
-    // Returns shortest distance from 0 to N-1 and prints path
-    public static int shortestDist(int[][] graph) {
-
-        int[] dist = new int[N];     // shortest distance
-        int[] next = new int[N];     // next node in path
-
-        dist[N - 1] = 0;
-        next[N - 1] = -1;
-
-        // Calculate shortest distances
-        for (int i = N - 2; i >= 0; i--) {
-            dist[i] = INF;
-            next[i] = -1;
-
-            for (int j = i + 1; j < N; j++) {
-                if (graph[i][j] == INF || dist[j] == INF)
-                    continue;
-
-                int newDist = graph[i][j] + dist[j];
-                if (newDist < dist[i]) {
-                    dist[i] = newDist;
-                    next[i] = j; // store next node
-                }
-            }
-        }
-
-        // Print path
-        printPath(next);
-
-        return dist[0];
+    static int firstMin(int[][] adj, int i) {
+        int min = INF;
+        for (int k = 0; k < N; k++) if (adj[i][k] < min && i != k) min = adj[i][k];
+        return min;
     }
 
-    // Function to print path from 0 to N-1
-    private static void printPath(int[] next) {
-        System.out.print("Shortest Path: ");
-        int curr = 0;
-        while (curr != -1) {
-            System.out.print(curr);
-            curr = next[curr];
-            if (curr != -1)
-                System.out.print(" -> ");
+    static int secondMin(int[][] adj, int i) {
+        int m1 = INF, m2 = INF;
+        for (int j = 0; j < N; j++) {
+            if (i != j) {
+                if (adj[i][j] <= m1) { m2 = m1; m1 = adj[i][j]; }
+                else if (adj[i][j] < m2) m2 = adj[i][j];
+            }
         }
+        return m2;
+    }
+
+    static void tspRec(int[][] adj, int currBound, int currWeight,
+                       int level, int[] currPath, boolean[] visited) {
+        if (level == N) {
+            if (adj[currPath[level-1]][currPath[0]] != 0) {
+                int curr = currWeight + adj[currPath[level-1]][currPath[0]];
+                if (curr < finalRes) {
+                    System.arraycopy(currPath, 0, finalPath, 0, N);
+                    finalPath[N] = currPath[0];
+                    finalRes = curr;
+                }
+            }
+            return;
+        }
+        for (int i = 0; i < N; i++) {
+            if (adj[currPath[level-1]][i] != 0 && !visited[i]) {
+                int temp = currBound;
+                currWeight += adj[currPath[level-1]][i];
+                int red = (level == 1) ?
+                    (firstMin(adj, currPath[level-1]) + firstMin(adj, i)) / 2 :
+                    (secondMin(adj, currPath[level-1]) + firstMin(adj, i)) / 2;
+                currBound -= red;
+                if (currBound + currWeight < finalRes) {
+                    currPath[level] = i;
+                    visited[i] = true;
+                    tspRec(adj, currBound, currWeight, level+1, currPath, visited);
+                }
+                currWeight -= adj[currPath[level-1]][i];
+                currBound = temp;
+                visited = new boolean[N];
+                for (int j = 0; j < level; j++) visited[currPath[j]] = true;
+            }
+        }
+    }
+
+    static void tsp(int[][] adj) {
+        int[] currPath = new int[N+1];
+        boolean[] visited = new boolean[N];
+        java.util.Arrays.fill(currPath, -1);
+        int currBound = 0;
+        for (int i = 0; i < N; i++) currBound += firstMin(adj,i) + secondMin(adj,i);
+        currBound = (currBound % 2 == 1) ? currBound/2+1 : currBound/2;
+        visited[0] = true; currPath[0] = 0;
+        tspRec(adj, currBound, 0, 1, currPath, visited);
+        System.out.print("Minimum cost = " + finalRes + "\nPath: ");
+        for (int x : finalPath) System.out.print(x + " ");
         System.out.println();
     }
 
     public static void main(String[] args) {
-
-        int[][] graph = {
-            { INF, 1, 2, 5, INF, INF, INF, INF },
-            { INF, INF, INF, INF, 4, 11, INF, INF },
-            { INF, INF, INF, INF, 9, 5, 16, INF },
-            { INF, INF, INF, INF, INF, INF, 2, INF },
-            { INF, INF, INF, INF, INF, INF, INF, 18 },
-            { INF, INF, INF, INF, INF, INF, INF, 13 },
-            { INF, INF, INF, INF, INF, INF, INF, 2 }
-        };
-
-        int shortestDistance = shortestDist(graph);
-        System.out.println("Shortest Distance: " + shortestDistance);
-    }
-}
-Travelling salesperson problem using dynamic programming 
-class GFG {
-
-    static int minCost = (int)1e9;
-    static int[] bestPath;
-
-    static void dfs(int[][] cost, boolean[] vis, int last, int cnt, 
-                    int currCost, int[] path) {
-
-        int n = cost.length;
-
-        // If all cities visited
-        if (cnt == n) {
-            currCost += cost[last][0]; // return to start
-
-            if (currCost < minCost) {
-                minCost = currCost;
-
-                // store best path
-                for (int i = 0; i < n; i++)
-                    bestPath[i] = path[i];
-            }
-            return;
-        }
-
-        for (int city = 1; city < n; city++) {
-            if (!vis[city]) {
-
-                vis[city] = true;
-                path[cnt] = city;
-
-                dfs(cost, vis, city, cnt + 1,
-                    currCost + cost[last][city], path);
-
-                // backtrack
-                vis[city] = false;
-            }
-        }
-    }
-
-    static void tsp(int[][] cost) {
-        int n = cost.length;
-
-        boolean[] vis = new boolean[n];
-        vis[0] = true;
-
-        int[] path = new int[n];
-        bestPath = new int[n];
-
-        path[0] = 0;
-
-        dfs(cost, vis, 0, 1, 0, path);
-
-        // Print result
-        System.out.println("Minimum Cost: " + minCost);
-
-        System.out.print("Path: ");
-        for (int i = 0; i < n; i++)
-            System.out.print(bestPath[i] + " -> ");
-        System.out.println("0"); // return to start
-    }
-
-    public static void main(String[] args) {
-        int[][] cost = {
-            {0, 10, 15, 20},
-            {10, 0, 35, 25},
-            {15, 35, 0, 30},
-            {20, 25, 30, 0}
-        };
-
-        tsp(cost);
+        int[][] adj = {{0,10,8,9},{10,0,7,5},{8,7,0,6},{9,5,6,0}};
+        tsp(adj);
     }
 }
 
-
-
-
-
-
-Travelling salesperson problem using branch and bound
-
-        class GFG {
-
-    static int minCost = Integer.MAX_VALUE;
-    static int[] bestPath;
-
-    static void tsp(int[][] cost, boolean[] vis, int curr, int count,
-                    int currCost, int[] path) {
-
-        int n = cost.length;
-
-        // all cities visited
-        if (count == n && cost[curr][0] > 0) {
-            int totalCost = currCost + cost[curr][0];
-
-            if (totalCost < minCost) {
-                minCost = totalCost;
-
-                for (int i = 0; i < n; i++)
-                    bestPath[i] = path[i];
-            }
-            return;
-        }
-
-        for (int i = 0; i < n; i++) {
-            if (!vis[i] && cost[curr][i] > 0) {
-
-                vis[i] = true;
-                path[count] = i;
-
-                tsp(cost, vis, i, count + 1,
-                    currCost + cost[curr][i], path);
-
-                vis[i] = false; // backtrack
-            }
-        }
-    }
-
-    public static void main(String[] args) {
-
-        int[][] cost = {
-            {0,10,15,20},
-            {10,0,35,25},
-            {15,35,0,30},
-            {20,25,30,0}
-        };
-
-        int n = cost.length;
-
-        boolean[] vis = new boolean[n];
-        vis[0] = true;
-
-        int[] path = new int[n];
-        bestPath = new int[n];
-
-        path[0] = 0;
-
-        tsp(cost, vis, 0, 1, 0, path);
-
-        System.out.println("Min Cost: " + minCost);
-
-        System.out.print("Path: ");
-        for (int i = 0; i < n; i++)
-            System.out.print(bestPath[i] + " -> ");
-        System.out.println("0");
-    }
-}
