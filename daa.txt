@@ -247,6 +247,10 @@ public class Dijkstra {
         return idx;
     }
 
+
+Dijkstra
+
+
 import java.util.*;
 
 class Pair {
@@ -257,7 +261,6 @@ class Pair {
     }
 }
 
-Dijkstra
 
 public class Main {
 
