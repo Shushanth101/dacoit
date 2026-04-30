@@ -358,3 +358,241 @@ plt.title("Loss vs Epochs")
 plt.xlabel("Epoch")
 plt.ylabel("Loss")
 plt.show()
+
+
+# ==========================================================
+# Q2. Analyze Effect of Different Learning Rates
+# XOR Problem using Backpropagation
+# Hidden Layer : ReLU
+# Output Layer : Sigmoid
+# Learning Rates: 0.001, 0.01, 0.1, 0.5
+# ==========================================================
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# -------------------------------
+# XOR Dataset
+# -------------------------------
+X = np.array([
+    [0,0],
+    [0,1],
+    [1,0],
+    [1,1]
+])
+
+y = np.array([
+    [0],
+    [1],
+    [1],
+    [0]
+])
+
+# -------------------------------
+# Activation Functions
+# -------------------------------
+def relu(x):
+    return np.maximum(0, x)
+
+def relu_derivative(x):
+    return (x > 0).astype(float)
+
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+# -------------------------------
+# Training Function
+# -------------------------------
+def train_model(lr, epochs=5000):
+
+    np.random.seed(42)
+
+    W1 = np.random.randn(2, 4) * 0.5
+    b1 = np.zeros((1, 4))
+
+    W2 = np.random.randn(4, 1) * 0.5
+    b2 = np.zeros((1, 1))
+
+    losses = []
+
+    for epoch in range(epochs):
+
+        # ---------- Forward ----------
+        z1 = np.dot(X, W1) + b1
+        a1 = relu(z1)
+
+        z2 = np.dot(a1, W2) + b2
+        a2 = sigmoid(z2)
+
+        # ---------- Binary Cross Entropy Loss ----------
+        loss = -np.mean(
+            y * np.log(a2 + 1e-8) +
+            (1 - y) * np.log(1 - a2 + 1e-8)
+        )
+
+        losses.append(loss)
+
+        # ---------- Backpropagation ----------
+        dz2 = a2 - y
+        dW2 = np.dot(a1.T, dz2) / len(X)
+        db2 = np.sum(dz2, axis=0, keepdims=True) / len(X)
+
+        dz1 = np.dot(dz2, W2.T) * relu_derivative(z1)
+        dW1 = np.dot(X.T, dz1) / len(X)
+        db1 = np.sum(dz1, axis=0, keepdims=True) / len(X)
+
+        # ---------- Update ----------
+        W2 -= lr * dW2
+        b2 -= lr * db2
+
+        W1 -= lr * dW1
+        b1 -= lr * db1
+
+    return losses, a2
+
+# -------------------------------
+# Compare Learning Rates
+# -------------------------------
+rates = [0.001, 0.01, 0.1, 0.5]
+
+for lr in rates:
+
+    losses, pred = train_model(lr)
+
+    plt.plot(losses, label=f"LR={lr}")
+
+    print(f"\nLearning Rate = {lr}")
+    print((pred > 0.5).astype(int).reshape(-1))
+
+# -------------------------------
+# Plot Loss Curves
+# -------------------------------
+plt.title("Loss vs Epochs for Different Learning Rates")
+plt.xlabel("Epoch")
+plt.ylabel("Loss")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+
+
+# ==========================================================
+# Q3. Train Neural Network on MNIST using Gradient Descent
+# Plain NumPy Implementation
+# Input: 784 -> Hidden: 128 -> Output: 10
+# Hidden Activation : ReLU
+# Output Activation : Softmax
+# ==========================================================
+
+import numpy as np
+import matplotlib.pyplot as plt
+from tensorflow.keras.datasets import mnist
+
+# -------------------------------
+# Load Dataset
+# -------------------------------
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+# Normalize + Flatten
+x_train = x_train.reshape(60000, 784) / 255.0
+x_test  = x_test.reshape(10000, 784) / 255.0
+
+# -------------------------------
+# One Hot Encoding
+# -------------------------------
+def one_hot(y, classes=10):
+    out = np.zeros((len(y), classes))
+    out[np.arange(len(y)), y] = 1
+    return out
+
+y_train_oh = one_hot(y_train)
+y_test_oh  = one_hot(y_test)
+
+# -------------------------------
+# Activation Functions
+# -------------------------------
+def relu(x):
+    return np.maximum(0, x)
+
+def relu_derivative(x):
+    return (x > 0).astype(float)
+
+def softmax(x):
+    exp_x = np.exp(x - np.max(x, axis=1, keepdims=True))
+    return exp_x / np.sum(exp_x, axis=1, keepdims=True)
+
+# -------------------------------
+# Initialize Weights
+# -------------------------------
+np.random.seed(42)
+
+W1 = np.random.randn(784, 128) * 0.01
+b1 = np.zeros((1, 128))
+
+W2 = np.random.randn(128, 10) * 0.01
+b2 = np.zeros((1, 10))
+
+# -------------------------------
+# Hyperparameters
+# -------------------------------
+lr = 0.1
+epochs = 20
+losses = []
+
+# ==========================================================
+# Training using Gradient Descent
+# ==========================================================
+for epoch in range(epochs):
+
+    # ---------- Forward ----------
+    z1 = np.dot(x_train, W1) + b1
+    a1 = relu(z1)
+
+    z2 = np.dot(a1, W2) + b2
+    a2 = softmax(z2)
+
+    # ---------- Loss ----------
+    loss = -np.mean(np.sum(y_train_oh * np.log(a2 + 1e-8), axis=1))
+    losses.append(loss)
+
+    # ---------- Backpropagation ----------
+    dz2 = a2 - y_train_oh
+    dW2 = np.dot(a1.T, dz2) / len(x_train)
+    db2 = np.sum(dz2, axis=0, keepdims=True) / len(x_train)
+
+    dz1 = np.dot(dz2, W2.T) * relu_derivative(z1)
+    dW1 = np.dot(x_train.T, dz1) / len(x_train)
+    db1 = np.sum(dz1, axis=0, keepdims=True) / len(x_train)
+
+    # ---------- Gradient Descent Update ----------
+    W1 -= lr * dW1
+    b1 -= lr * db1
+
+    W2 -= lr * dW2
+    b2 -= lr * db2
+
+    print(f"Epoch {epoch+1}/{epochs}, Loss = {loss:.4f}")
+
+# ==========================================================
+# Testing Accuracy
+# ==========================================================
+z1 = np.dot(x_test, W1) + b1
+a1 = relu(z1)
+
+z2 = np.dot(a1, W2) + b2
+a2 = softmax(z2)
+
+pred = np.argmax(a2, axis=1)
+accuracy = np.mean(pred == y_test)
+
+print("\nTest Accuracy:", accuracy * 100, "%")
+
+# ==========================================================
+# Plot Loss Curve
+# ==========================================================
+plt.plot(losses)
+plt.title("MNIST Training Loss")
+plt.xlabel("Epoch")
+plt.ylabel("Loss")
+plt.grid(True)
+plt.show()
