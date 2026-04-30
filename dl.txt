@@ -242,73 +242,120 @@ for name,m in models.items():
 
 
 
-# ===============================================================
-# Q1. Forward and Backward Propagation in Neural Network
-# XOR Problem using Manual Backpropagation
-# ===============================================================
+# ==========================================================
+# Backpropagation with MNIST Dataset (Plain Version)
+# No Batch Size / Full Dataset Training
+# Input: 784 -> Hidden: 128 -> Output: 10
+# ==========================================================
 
 import numpy as np
+import matplotlib.pyplot as plt
+from tensorflow.keras.datasets import mnist
 
-# XOR Input and Output
-X = np.array([[0,0],
-              [0,1],
-              [1,0],
-              [1,1]])
+# -------------------------------
+# Load Dataset
+# -------------------------------
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
 
-y = np.array([[0],
-              [1],
-              [1],
-              [0]])
+# Normalize and Flatten
+x_train = x_train.reshape(60000, 784) / 255.0
+x_test  = x_test.reshape(10000, 784) / 255.0
 
-# Sigmoid Function
+# -------------------------------
+# One Hot Encoding
+# -------------------------------
+def one_hot(y, classes=10):
+    out = np.zeros((len(y), classes))
+    out[np.arange(len(y)), y] = 1
+    return out
+
+y_train_oh = one_hot(y_train)
+y_test_oh  = one_hot(y_test)
+
+# -------------------------------
+# Activation Functions
+# -------------------------------
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
-# Derivative
 def sigmoid_derivative(x):
     return x * (1 - x)
 
-# Initialize weights
-np.random.seed(1)
+def softmax(x):
+    exp_x = np.exp(x - np.max(x, axis=1, keepdims=True))
+    return exp_x / np.sum(exp_x, axis=1, keepdims=True)
 
-W1 = np.random.rand(2,4)
-b1 = np.zeros((1,4))
+# -------------------------------
+# Initialize Weights
+# -------------------------------
+np.random.seed(42)
 
-W2 = np.random.rand(4,1)
-b2 = np.zeros((1,1))
+W1 = np.random.randn(784, 128) * 0.01
+b1 = np.zeros((1, 128))
 
+W2 = np.random.randn(128, 10) * 0.01
+b2 = np.zeros((1, 10))
+
+# -------------------------------
+# Hyperparameters
+# -------------------------------
 lr = 0.1
-epochs = 10000
+epochs = 20
+losses = []
 
+# ==========================================================
+# Training (Plain Full Dataset)
+# ==========================================================
 for epoch in range(epochs):
 
-    # Forward Propagation
-    hidden_input = np.dot(X, W1) + b1
-    hidden_output = sigmoid(hidden_input)
+    # ---------- Forward Propagation ----------
+    z1 = np.dot(x_train, W1) + b1
+    a1 = sigmoid(z1)
 
-    final_input = np.dot(hidden_output, W2) + b2
-    output = sigmoid(final_input)
+    z2 = np.dot(a1, W2) + b2
+    a2 = softmax(z2)
 
-    # Loss
-    loss = np.mean((y - output)**2)
+    # ---------- Loss ----------
+    loss = -np.mean(np.sum(y_train_oh * np.log(a2 + 1e-8), axis=1))
+    losses.append(loss)
 
-    # Backward Propagation
-    error = y - output
-    d_output = error * sigmoid_derivative(output)
+    # ---------- Backpropagation ----------
+    dz2 = a2 - y_train_oh
+    dW2 = np.dot(a1.T, dz2) / len(x_train)
+    db2 = np.sum(dz2, axis=0, keepdims=True) / len(x_train)
 
-    hidden_error = d_output.dot(W2.T)
-    d_hidden = hidden_error * sigmoid_derivative(hidden_output)
+    dz1 = np.dot(dz2, W2.T) * sigmoid_derivative(a1)
+    dW1 = np.dot(x_train.T, dz1) / len(x_train)
+    db1 = np.sum(dz1, axis=0, keepdims=True) / len(x_train)
 
-    # Update weights
-    W2 += hidden_output.T.dot(d_output) * lr
-    b2 += np.sum(d_output, axis=0, keepdims=True) * lr
+    # ---------- Update ----------
+    W2 -= lr * dW2
+    b2 -= lr * db2
 
-    W1 += X.T.dot(d_hidden) * lr
-    b1 += np.sum(d_hidden, axis=0, keepdims=True) * lr
+    W1 -= lr * dW1
+    b1 -= lr * db1
 
-    if epoch % 1000 == 0:
-        print("Epoch:", epoch, "Loss:", loss)
+    print(f"Epoch {epoch+1}/{epochs}, Loss = {loss:.4f}")
 
-# Final Output
-print("\nPredictions:")
-print(output)
+# ==========================================================
+# Testing
+# ==========================================================
+z1 = np.dot(x_test, W1) + b1
+a1 = sigmoid(z1)
+
+z2 = np.dot(a1, W2) + b2
+a2 = softmax(z2)
+
+pred = np.argmax(a2, axis=1)
+accuracy = np.mean(pred == y_test)
+
+print("\nTest Accuracy:", accuracy * 100, "%")
+
+# ==========================================================
+# Plot Loss
+# ==========================================================
+plt.plot(losses)
+plt.title("Loss vs Epochs")
+plt.xlabel("Epoch")
+plt.ylabel("Loss")
+plt.show()
