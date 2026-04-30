@@ -477,122 +477,84 @@ plt.show()
 
 
 # ==========================================================
-# Q3. Train Neural Network on MNIST using Gradient Descent
-# Plain NumPy Implementation
+# Q3. Train Neural Network on MNIST using TensorFlow
+# Gradient Descent Optimizer (SGD)
 # Input: 784 -> Hidden: 128 -> Output: 10
-# Hidden Activation : ReLU
-# Output Activation : Softmax
 # ==========================================================
 
-import numpy as np
+import tensorflow as tf
 import matplotlib.pyplot as plt
 from tensorflow.keras.datasets import mnist
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Flatten
 
 # -------------------------------
 # Load Dataset
 # -------------------------------
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
-# Normalize + Flatten
-x_train = x_train.reshape(60000, 784) / 255.0
-x_test  = x_test.reshape(10000, 784) / 255.0
+# Normalize
+x_train = x_train / 255.0
+x_test  = x_test / 255.0
 
 # -------------------------------
-# One Hot Encoding
+# Build Model
 # -------------------------------
-def one_hot(y, classes=10):
-    out = np.zeros((len(y), classes))
-    out[np.arange(len(y)), y] = 1
-    return out
-
-y_train_oh = one_hot(y_train)
-y_test_oh  = one_hot(y_test)
+model = Sequential([
+    Flatten(input_shape=(28,28)),
+    Dense(128, activation='relu'),
+    Dense(10, activation='softmax')
+])
 
 # -------------------------------
-# Activation Functions
+# Compile Model
+# SGD = Gradient Descent
 # -------------------------------
-def relu(x):
-    return np.maximum(0, x)
-
-def relu_derivative(x):
-    return (x > 0).astype(float)
-
-def softmax(x):
-    exp_x = np.exp(x - np.max(x, axis=1, keepdims=True))
-    return exp_x / np.sum(exp_x, axis=1, keepdims=True)
+model.compile(
+    optimizer=tf.keras.optimizers.SGD(learning_rate=0.1),
+    loss='sparse_categorical_crossentropy',
+    metrics=['accuracy']
+)
 
 # -------------------------------
-# Initialize Weights
+# Train Model
 # -------------------------------
-np.random.seed(42)
-
-W1 = np.random.randn(784, 128) * 0.01
-b1 = np.zeros((1, 128))
-
-W2 = np.random.randn(128, 10) * 0.01
-b2 = np.zeros((1, 10))
+history = model.fit(
+    x_train,
+    y_train,
+    epochs=20,
+    validation_data=(x_test, y_test)
+)
 
 # -------------------------------
-# Hyperparameters
+# Evaluate Model
 # -------------------------------
-lr = 0.1
-epochs = 20
-losses = []
+loss, acc = model.evaluate(x_test, y_test)
 
-# ==========================================================
-# Training using Gradient Descent
-# ==========================================================
-for epoch in range(epochs):
+print("\nTest Accuracy:", acc * 100, "%")
 
-    # ---------- Forward ----------
-    z1 = np.dot(x_train, W1) + b1
-    a1 = relu(z1)
-
-    z2 = np.dot(a1, W2) + b2
-    a2 = softmax(z2)
-
-    # ---------- Loss ----------
-    loss = -np.mean(np.sum(y_train_oh * np.log(a2 + 1e-8), axis=1))
-    losses.append(loss)
-
-    # ---------- Backpropagation ----------
-    dz2 = a2 - y_train_oh
-    dW2 = np.dot(a1.T, dz2) / len(x_train)
-    db2 = np.sum(dz2, axis=0, keepdims=True) / len(x_train)
-
-    dz1 = np.dot(dz2, W2.T) * relu_derivative(z1)
-    dW1 = np.dot(x_train.T, dz1) / len(x_train)
-    db1 = np.sum(dz1, axis=0, keepdims=True) / len(x_train)
-
-    # ---------- Gradient Descent Update ----------
-    W1 -= lr * dW1
-    b1 -= lr * db1
-
-    W2 -= lr * dW2
-    b2 -= lr * db2
-
-    print(f"Epoch {epoch+1}/{epochs}, Loss = {loss:.4f}")
-
-# ==========================================================
-# Testing Accuracy
-# ==========================================================
-z1 = np.dot(x_test, W1) + b1
-a1 = relu(z1)
-
-z2 = np.dot(a1, W2) + b2
-a2 = softmax(z2)
-
-pred = np.argmax(a2, axis=1)
-accuracy = np.mean(pred == y_test)
-
-print("\nTest Accuracy:", accuracy * 100, "%")
-
-# ==========================================================
+# -------------------------------
 # Plot Loss Curve
-# ==========================================================
-plt.plot(losses)
-plt.title("MNIST Training Loss")
+# -------------------------------
+plt.plot(history.history['loss'], label='Train Loss')
+plt.plot(history.history['val_loss'], label='Validation Loss')
+
+plt.title("MNIST Loss using Gradient Descent")
 plt.xlabel("Epoch")
 plt.ylabel("Loss")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# -------------------------------
+# Plot Accuracy Curve
+# -------------------------------
+plt.plot(history.history['accuracy'], label='Train Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+
+plt.title("MNIST Accuracy using Gradient Descent")
+plt.xlabel("Epoch")
+plt.ylabel("Accuracy")
+plt.legend()
 plt.grid(True)
 plt.show()
