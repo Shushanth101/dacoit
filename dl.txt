@@ -243,8 +243,8 @@ for name,m in models.items():
 
 
 # ==========================================================
-# Backpropagation with MNIST Dataset (Plain Version)
-# No Batch Size / Full Dataset Training
+# Backpropagation with MNIST Dataset
+# Plain Full Dataset + ReLU Hidden Layer
 # Input: 784 -> Hidden: 128 -> Output: 10
 # ==========================================================
 
@@ -257,7 +257,7 @@ from tensorflow.keras.datasets import mnist
 # -------------------------------
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
-# Normalize and Flatten
+# Normalize + Flatten
 x_train = x_train.reshape(60000, 784) / 255.0
 x_test  = x_test.reshape(10000, 784) / 255.0
 
@@ -270,16 +270,15 @@ def one_hot(y, classes=10):
     return out
 
 y_train_oh = one_hot(y_train)
-y_test_oh  = one_hot(y_test)
 
 # -------------------------------
 # Activation Functions
 # -------------------------------
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
+def relu(x):
+    return np.maximum(0, x)
 
-def sigmoid_derivative(x):
-    return x * (1 - x)
+def relu_derivative(x):
+    return (x > 0).astype(float)
 
 def softmax(x):
     exp_x = np.exp(x - np.max(x, axis=1, keepdims=True))
@@ -304,13 +303,13 @@ epochs = 20
 losses = []
 
 # ==========================================================
-# Training (Plain Full Dataset)
+# Training
 # ==========================================================
 for epoch in range(epochs):
 
-    # ---------- Forward Propagation ----------
+    # ---------- Forward ----------
     z1 = np.dot(x_train, W1) + b1
-    a1 = sigmoid(z1)
+    a1 = relu(z1)
 
     z2 = np.dot(a1, W2) + b2
     a2 = softmax(z2)
@@ -324,16 +323,16 @@ for epoch in range(epochs):
     dW2 = np.dot(a1.T, dz2) / len(x_train)
     db2 = np.sum(dz2, axis=0, keepdims=True) / len(x_train)
 
-    dz1 = np.dot(dz2, W2.T) * sigmoid_derivative(a1)
+    dz1 = np.dot(dz2, W2.T) * relu_derivative(z1)
     dW1 = np.dot(x_train.T, dz1) / len(x_train)
     db1 = np.sum(dz1, axis=0, keepdims=True) / len(x_train)
 
     # ---------- Update ----------
-    W2 -= lr * dW2
-    b2 -= lr * db2
-
     W1 -= lr * dW1
     b1 -= lr * db1
+
+    W2 -= lr * dW2
+    b2 -= lr * db2
 
     print(f"Epoch {epoch+1}/{epochs}, Loss = {loss:.4f}")
 
@@ -341,7 +340,7 @@ for epoch in range(epochs):
 # Testing
 # ==========================================================
 z1 = np.dot(x_test, W1) + b1
-a1 = sigmoid(z1)
+a1 = relu(z1)
 
 z2 = np.dot(a1, W2) + b2
 a2 = softmax(z2)
